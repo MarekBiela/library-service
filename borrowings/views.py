@@ -1,6 +1,8 @@
 from rest_framework import mixins, viewsets
 from rest_framework.permissions import IsAuthenticated
+from django_filters.rest_framework import DjangoFilterBackend
 
+from .filters import BorrowingFilter
 from .models import Borrowing
 from .serializers import (
     BorrowingListSerializer,
@@ -17,9 +19,13 @@ class BorrowingViewSet(
 ):
     queryset = Borrowing.objects.select_related("user", "book")
     permission_classes = [IsAuthenticated]
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = BorrowingFilter
 
     def get_queryset(self):
-        return self.queryset.filter(user=self.request.user)
+        if not self.request.user.is_staff:
+            return self.queryset.filter(user=self.request.user)
+        return self.queryset
 
     def get_serializer_class(self):
         if self.action == "create":
