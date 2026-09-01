@@ -23,4 +23,5 @@ urlpatterns = [
     path("api/books/", include("books.urls", namespace="books")),
     path("api/users/", include("users.urls", namespace="users")),
     path("api-auth/", include("rest_framework.urls")),
+    path("api/borrowings/", include("borrowings.urls", namespace="borrowings")),
 ]
