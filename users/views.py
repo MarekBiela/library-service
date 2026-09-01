@@ -1,11 +1,10 @@
 from django.contrib.auth import get_user_model
 from rest_framework import mixins, viewsets
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 
 from .serializers import UserSerializer
-
 
 class UserViewSet(
     mixins.CreateModelMixin,
@@ -14,7 +13,12 @@ class UserViewSet(
 
     queryset = get_user_model().objects.all()
     serializer_class = UserSerializer
-    permission_classes = (IsAuthenticated,)
+
+    def get_permissions(self):
+        if self.action == "create":
+            return [AllowAny()]
+
+        return [IsAuthenticated()]
 
     @action(detail=False, methods=["get", "patch"], url_path="me")
     def me(self, request):
@@ -28,3 +32,4 @@ class UserViewSet(
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
+
